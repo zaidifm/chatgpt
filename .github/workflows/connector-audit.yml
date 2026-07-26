@@ -1,0 +1,33 @@
+name: connector-audit
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create audit artifact
+        shell: bash
+        run: |
+          mkdir -p artifact
+          printf 'repository=%s\nsha=%s\nref=%s\n' "$GITHUB_REPOSITORY" "$GITHUB_SHA" "$GITHUB_REF" > artifact/workflow-receipt.txt
+          sha256sum artifact/workflow-receipt.txt > artifact/SHA256SUMS
+      - name: Intentional failure marker
+        if: ${{ hashFiles('ci/force-fail') != '' }}
+        shell: bash
+        run: |
+          echo 'Intentional connector audit failure' >&2
+          exit 17
+      - name: Upload audit artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: connector-audit-${{ github.run_id }}
+          path: artifact/
+          retention-days: 1
