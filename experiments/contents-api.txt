@@ -1,4 +1,5 @@
-line 1: initial
+line 1: updated
 line 2: contents API
-line 3: optimistic SHA
+line 3: optimistic SHA confirmed
 line 4: deletion target
+line 5: sequential content SHA
