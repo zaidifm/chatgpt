@@ -1,0 +1,53 @@
+{
+  "direct_sample_ids": [
+    "25"
+  ],
+  "directions": [
+    "down",
+    "right",
+    "up",
+    "left"
+  ],
+  "expected_rebuild_animation_count": 6,
+  "files": {
+    "directional-atlas.png": {
+      "bytes": 6696,
+      "sha256": "fb02855f0955fe6ccff2d77a30c594ef6654e9c1de65f8c9a3fd2b42a7d150c2"
+    },
+    "mini-parade.gif": {
+      "bytes": 59665,
+      "sha256": "ad75cec3b549936fe7c3e1ddda5189babcc17fe2f04dd81a55d37711ce625b6e"
+    },
+    "overworld-mini-source.zip": {
+      "bytes": 26218,
+      "sha256": "9b3d2d3b822f2212bbf2339a57e89e81e23b2a419226be461c8ad025debb1e6d"
+    },
+    "samples/25.gif": {
+      "bytes": 8972,
+      "sha256": "6ee70757b5aad6a9e44fc0efbb6edb2f433bf673d16ccc8ea2abc37006502d58"
+    },
+    "samples/25.webp": {
+      "bytes": 2450,
+      "sha256": "2376554de389b1c4fba0d4681dc76a01ebe2fb7486b32e70462e4f2630e117cc"
+    }
+  },
+  "frames_per_direction": 2,
+  "local_full_generation": {
+    "animated_gifs": 1152,
+    "note": "Full bytes were intentionally not embedded in the connector call; see audit report for the content-mediated upload boundary.",
+    "variant_counts": {
+      "female": 12,
+      "normal": 564,
+      "shiny": 564,
+      "shiny-female": 12
+    },
+    "zip_bytes": 4261451,
+    "zip_sha256": "480fc94aaf9252ab800c82eae4d764e0eaa84eed980f433df5b4596a1311963d"
+  },
+  "mini_source_variants": [
+    "normal",
+    "shiny"
+  ],
+  "snapshot_utc": "2026-07-26T12:50:00Z",
+  "source_archive": "pokemon(1).zip"
+}

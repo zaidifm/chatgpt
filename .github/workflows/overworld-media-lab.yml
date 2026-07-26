@@ -1,0 +1,47 @@
+name: overworld-media-lab
+
+on:
+  push:
+    branches: [lab/overworld-motion-atlas]
+  pull_request:
+    paths:
+      - 'media-lab/overworld/**'
+      - 'tools/**'
+      - '.github/workflows/overworld-media-lab.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-and-rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify connector-transferred binary media
+        run: python tools/verify_github_media.py
+      - name: Install image dependency
+        run: python -m pip install --disable-pip-version-check Pillow
+      - name: Rebuild animations from committed PNG frames
+        run: python tools/build_overworld_animations.py media-lab/overworld/overworld-mini-source.zip rebuilt
+      - name: Inspect rebuilt animation archive
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, zipfile
+          from pathlib import Path
+          root=Path('rebuilt/media-lab/overworld')
+          manifest=json.loads((root/'manifest.json').read_text())
+          counts={k:v['count'] for k,v in manifest['variants'].items()}
+          assert counts == {'normal': 3, 'shiny': 3}, counts
+          with zipfile.ZipFile(root/'overworld-motion-atlas.zip') as z:
+              assert z.testzip() is None
+              assert len([n for n in z.namelist() if n.endswith('.gif')]) == 6
+          print('rebuilt variants', counts)
+          PY
+      - name: Upload rebuilt animation lab
+        uses: actions/upload-artifact@v4
+        with:
+          name: overworld-animation-lab-${{ github.run_id }}
+          path: rebuilt/media-lab/overworld/
+          retention-days: 7
