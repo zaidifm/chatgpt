@@ -14,34 +14,34 @@ permissions:
   contents: read
 
 jobs:
-  verify-and-rebuild:
+  verify-and-remix:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify connector-transferred binary media
-        run: python tools/verify_github_media.py
       - name: Install image dependency
         run: python -m pip install --disable-pip-version-check Pillow
-      - name: Rebuild animations from committed PNG frames
-        run: python tools/build_overworld_animations.py media-lab/overworld/overworld-mini-source.zip rebuilt
-      - name: Inspect rebuilt animation archive
+      - name: Verify connector-transferred binary media
+        run: python tools/verify_github_media.py
+      - name: Build GIF and frame-strip artifacts
+        run: python tools/remix_committed_media.py media-lab/overworld rebuilt
+      - name: Inspect generated artifacts
         shell: bash
         run: |
           python - <<'PY'
-          import json, zipfile
+          import json
           from pathlib import Path
-          root=Path('rebuilt/media-lab/overworld')
+          from PIL import Image
+          root=Path('rebuilt')
           manifest=json.loads((root/'manifest.json').read_text())
-          counts={k:v['count'] for k,v in manifest['variants'].items()}
-          assert counts == {'normal': 3, 'shiny': 3}, counts
-          with zipfile.ZipFile(root/'overworld-motion-atlas.zip') as z:
-              assert z.testzip() is None
-              assert len([n for n in z.namelist() if n.endswith('.gif')]) == 6
-          print('rebuilt variants', counts)
+          assert manifest['webp_frames'] == 16
+          assert manifest['atlas_scan_frames'] >= 6
+          assert Image.open(root/'pikachu-turntable.gif').n_frames == 16
+          assert Image.open(root/'directional-atlas-scan.gif').n_frames == manifest['atlas_scan_frames']
+          print('generated', sorted(manifest['outputs']))
           PY
-      - name: Upload rebuilt animation lab
+      - name: Upload generated animation lab
         uses: actions/upload-artifact@v4
         with:
           name: overworld-animation-lab-${{ github.run_id }}
-          path: rebuilt/media-lab/overworld/
+          path: rebuilt/
           retention-days: 7
