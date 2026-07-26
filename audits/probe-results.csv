@@ -1,0 +1,37 @@
+id,domain,probe,result,status,notes
+G001,identity,authenticated user,zaidifm,pass,
+G002,permissions,repository permission,admin,pass,"maintain push pull triage also true"
+G003,network,direct VM git clone,DNS failure,blocked,"connector does not extend VM network"
+G004,contents,create file,commit created,pass,
+G005,contents,duplicate create,HTTP 422,bounded,"misleading sha wasn't supplied message"
+G006,contents,stale update,HTTP 409,pass,"optimistic locking"
+G007,contents,stale delete,HTTP 409,pass,"optimistic locking"
+G008,git-data,binary blob exact,small PNG WebP and arbitrary bytes,pass,
+G009,git-data,large model-mediated binary,blob SHA mismatch,failed,"no native mounted-file upload"
+G010,git-data,non-fast-forward ref,HTTP 422,pass,
+G011,git-data,forced ref rewind,success,pass,"consequential write"
+G012,git-data,synthetic merge commit,two-parent commit created,pass,"read API omits parents"
+G013,reads,binary fetch_blob,UnicodeDecodeError,failed,"fetch_file base64 works"
+G014,search,branch search,empty for existing branches,failed,
+G015,search,code search default branch,unique token found,pass,
+G016,search,code search non-default branch,unique token absent,limited,
+G017,issues,lifecycle,labels assignees state lock comments reactions,pass,
+G018,pull-requests,draft lifecycle,ready draft close reopen,pass,
+G019,pull-requests,self reviewer request,HTTP 422,bounded,"GitHub rule"
+G020,pull-requests,self approval,HTTP 422,bounded,"GitHub rule"
+G021,pull-requests,inline review lifecycle,comment reply edit resolve unresolve,pass,
+G022,pull-requests,squash merge,success,pass,"expected head SHA supported"
+G023,actions,success workflow,run 30200716452,pass,
+G024,actions,intentional failure workflow,run 30200735543,pass,"failure logs and artifact readable"
+G025,actions,rerun failed jobs,same run new attempt,pass,
+G026,actions,rerun one job,same run new job ID,pass,
+G027,actions,legacy combined status,empty for Actions,limited,"does not surface Checks"
+G028,artifacts,download to VM,digest matched,pass,"true file bridge"
+G029,media,overworld WebP and PNG binary commit,SHA exact,pass,
+G030,media,Actions remix,16-frame and 12-frame GIF outputs,pass,
+G031,media,artifact local verification,all hashes and frames matched,pass,
+G032,media,artifact PNG re-upload,Git blob SHA exact,pass,"closed binary round trip"
+G033,errors,auto merge disabled,UNKNOWN wrapper,poor_normalization,"nested cause useful"
+G034,errors,dismiss comment review,UNKNOWN wrapper,poor_normalization,"GraphQL validation nested"
+G035,ids,REST GraphQL identifier congruence,mixed numeric and node IDs,quirk,"retain mutation receipts"
+G036,pagination,Actions wrappers,first page latest attempt,limited,
