@@ -1,0 +1,61 @@
+{
+  "schema_version": "chatgpt-github-connector-baseline-v1",
+  "snapshot": "2026-07-26",
+  "repository": "zaidifm/chatgpt",
+  "authenticated_user": "zaidifm",
+  "permission": "admin",
+  "scope_confined_to_repository": true,
+  "planes": {
+    "github_connector": "operational",
+    "vm_public_github_network": "blocked",
+    "artifact_download_to_vm": "operational",
+    "native_vm_file_upload_to_github": "not_exposed"
+  },
+  "successful_domains": [
+    "repository discovery",
+    "file reads",
+    "contents create update delete",
+    "Git blobs trees commits refs",
+    "branch creation and ref updates",
+    "commit and code search",
+    "issues labels assignees locks comments reactions",
+    "pull requests drafts reviews inline threads reactions merge",
+    "GitHub Actions runs jobs steps logs artifacts reruns",
+    "binary artifact download",
+    "media transformation and binary round trip"
+  ],
+  "known_failures": {
+    "branch_search": "returns empty for exact existing branches",
+    "binary_fetch_blob": "UTF-8 UnicodeDecodeError",
+    "legacy_combined_status_for_actions": "empty status list",
+    "code_search_non_default_branch": "probe token not found",
+    "auto_merge": "repository setting disabled; wrapper reports UNKNOWN",
+    "self_review": "GitHub HTTP 422",
+    "large_model_mediated_binary_upload": "integrity mismatch"
+  },
+  "exact_binary_roundtrip": {
+    "source_webp_sha256": "2376554de389b1c4fba0d4681dc76a01ebe2fb7486b32e70462e4f2630e117cc",
+    "source_png_sha256": "fb02855f0955fe6ccff2d77a30c594ef6654e9c1de65f8c9a3fd2b42a7d150c2",
+    "actions_artifact_sha256": "13f859933c8edbdf9459108dfc92529a8280f80dcbba5182bea9fd5c7e588d90",
+    "roundtrip_png_git_blob_sha1": "60275298583b0f946597d9d6db5f151f2df5ad8a"
+  },
+  "media_lab": {
+    "pull_request": 6,
+    "clean_commit": "b5ebfbf01a7ef1666a69f83212acb632c8264087",
+    "workflow_run": 30203792957,
+    "artifact_id": 8632447932,
+    "local_full_animated_gifs": 1152,
+    "local_full_zip_bytes": 4261451,
+    "local_full_zip_sha256": "480fc94aaf9252ab800c82eae4d764e0eaa84eed980f433df5b4596a1311963d"
+  },
+  "wrapper_limits": {
+    "workflow_runs_first_page_only": true,
+    "workflow_runs_pr_trigger_filter": true,
+    "jobs_latest_attempt_first_page_only": true,
+    "artifacts_first_page_only": true,
+    "commit_read_exposes_parents": false,
+    "commit_read_exposes_tree_sha": false,
+    "general_tree_read": false,
+    "native_file_upload": false
+  }
+}

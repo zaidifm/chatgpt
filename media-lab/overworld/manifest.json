@@ -1,0 +1,28 @@
+{
+  "files": {
+    "directional-atlas.png": {
+      "bytes": 6696,
+      "sha256": "fb02855f0955fe6ccff2d77a30c594ef6654e9c1de65f8c9a3fd2b42a7d150c2",
+      "size": [900, 112]
+    },
+    "samples/25.webp": {
+      "bytes": 2450,
+      "frames": 16,
+      "sha256": "2376554de389b1c4fba0d4681dc76a01ebe2fb7486b32e70462e4f2630e117cc",
+      "size": [96, 96]
+    }
+  },
+  "local_full_generation": {
+    "animated_gifs": 1152,
+    "variant_counts": {
+      "female": 12,
+      "normal": 564,
+      "shiny": 564,
+      "shiny-female": 12
+    },
+    "zip_bytes": 4261451,
+    "zip_sha256": "480fc94aaf9252ab800c82eae4d764e0eaa84eed980f433df5b4596a1311963d"
+  },
+  "snapshot_utc": "2026-07-26T13:15:00Z",
+  "source_archive": "pokemon(1).zip"
+}
