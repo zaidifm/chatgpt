@@ -1,2 +1,2 @@
-Low-level Git data API text blob, second revision.
-Probe token: GIT-BLOB-TEXT-REV2-2026-07-26
+Low-level Git data API text blob, third revision using base_tree.
+Probe token: GIT-BLOB-TEXT-REV3-2026-07-26
