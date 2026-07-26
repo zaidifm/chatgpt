@@ -2,6 +2,7 @@ name: connector-audit
 
 on:
   push:
+  pull_request:
   workflow_dispatch:
 
 permissions:
