@@ -1,0 +1,9 @@
+id,domain,probe,observed,result,confidence
+T001,wrapper,container.exec timeout=1 around sleep 3,completed after ~3s,not_enforced,observed
+T002,wrapper,container.exec timeout=2000 around 8.6s worker,worker completed,not_enforced,observed
+T003,cancellation,GNU timeout sends TERM to foreground worker,exit 124; SIGTERM journal; no output,pass,observed
+T004,process_tree,same-group child under cancelled launcher,child received SIGTERM; no output,pass,observed
+T005,process_tree,setsid detached child under cancelled launcher,reparented to PID 1 and completed,survives,observed
+T006,retry,naive side effect then lost receipt then retry,counter 2; one receipt,duplicate,observed
+T007,retry,SQLite idempotency key then lost receipt then retry,counter 1; attempts 2; completed,pass,observed
+T008,recovery,interrupt chunk worker then resume,6 chunks recovered; output matches baseline,pass,observed

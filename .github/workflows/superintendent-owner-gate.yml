@@ -1,0 +1,48 @@
+name: superintendent-owner-gate
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: superintendent-owner-gate-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  execute:
+    if: github.event.label.name == 'owner-approved'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate grant and execute bounded task
+        id: execute
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python3 conformance/executor-gate/execute_task.py \
+            --event "$GITHUB_EVENT_PATH" \
+            --policy conformance/executor-gate/policy.json \
+            --out executor-output
+      - name: Upload deterministic execution artifact
+        id: upload
+        if: steps.execute.outputs.decision == 'execute'
+        uses: actions/upload-artifact@v4
+        with:
+          name: superintendent-${{ steps.execute.outputs.task_id }}-${{ github.run_id }}
+          path: executor-output/artifact/
+          retention-days: 7
+      - name: Post canonical terminal receipt
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
+          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+        run: |
+          python3 conformance/executor-gate/post_receipt.py \
+            --event "$GITHUB_EVENT_PATH" \
+            --outcome executor-output/outcome.json \
+            --artifact-id "$ARTIFACT_ID" \
+            --artifact-url "$ARTIFACT_URL"

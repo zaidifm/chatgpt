@@ -1,0 +1,13 @@
+{
+  "schema_version": "superintendent-executor-policy-v1",
+  "current_epoch": 1,
+  "approval_label": "owner-approved",
+  "task_marker": "superintendent-task",
+  "receipt_marker_prefix": "superintendent-receipt:",
+  "allowed_capabilities": {
+    "canonical-json-sha256-v1": {
+      "operation": "canonicalize-and-hash",
+      "max_input_bytes": 4096
+    }
+  }
+}
