@@ -12,15 +12,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run registry unit tests
+      - name: Run registry and authority unit tests
         working-directory: conformance/artifact-registry
-        run: PYTHONPATH=src python3 -m unittest discover -s tests -p 'test_registry.py' -v
-      - name: Run deterministic cross-node scenario
+        run: PYTHONPATH=src python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Run deterministic artifact reconciliation scenario
         working-directory: conformance/artifact-registry
         run: PYTHONPATH=src python3 tests/deterministic_scenario.py --output artifact-registry-evidence
+      - name: Run deterministic authority and lease scenario
+        working-directory: conformance/artifact-registry
+        run: PYTHONPATH=src python3 tests/authority_scenario.py --output authority-core-evidence
       - name: Upload deterministic evidence
         uses: actions/upload-artifact@v4
         with:
-          name: artifact-registry-evidence-${{ github.run_id }}
-          path: conformance/artifact-registry/artifact-registry-evidence/
+          name: superintendent-core-evidence-${{ github.run_id }}
+          path: |
+            conformance/artifact-registry/artifact-registry-evidence/
+            conformance/artifact-registry/authority-core-evidence/
           retention-days: 7

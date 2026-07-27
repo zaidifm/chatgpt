@@ -1,7 +1,7 @@
 [project]
 name = "superintendent-registry"
-version = "0.1.0"
-description = "Content-addressed artifact and receipt reconciliation prototype"
+version = "0.2.0"
+description = "Content-addressed registry, authority epochs, grants, leases, and reconciliation"
 requires-python = ">=3.11"
 
 [project.scripts]
