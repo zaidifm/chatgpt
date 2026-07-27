@@ -103,6 +103,7 @@ def run(output: Path) -> dict:
                 "declared_at": T0,
             })
 
+            # Completed task.
             completed_task = task_payload("TASK-COMPLETE", "idem-complete")
             request(base, "POST", "/v1/tasks", {"task": completed_task, "created_at": T1})
             request(base, "POST", "/v1/tasks/TASK-COMPLETE/approve", {"at": T2, "actor": "owner"})
@@ -139,6 +140,7 @@ def run(output: Path) -> dict:
                 "actor": "resident-scenario-executor",
             })
 
+            # Executor-loss task, made unknown by deterministic scheduler tick.
             lost_task = task_payload("TASK-LOST", "idem-lost")
             request(base, "POST", "/v1/tasks", {"task": lost_task, "created_at": T1})
             request(base, "POST", "/v1/tasks/TASK-LOST/approve", {"at": T2, "actor": "owner"})
@@ -149,6 +151,7 @@ def run(output: Path) -> dict:
             tick = request(base, "POST", "/v1/scheduler/tick", {"at": T8})
             assert tick["expired_lease_ids"] == ["LEASE-TASK-LOST"]
 
+            # Connector-observation intake and accepted replica reconciliation.
             fixture_bytes = b"resident connector observation fixture\n"
             fixture = request(base, "POST", "/v1/artifacts", {
                 "logical_name": "resident-scenario/connector-fixture",
