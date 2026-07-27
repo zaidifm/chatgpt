@@ -99,3 +99,69 @@ PYTHONPATH=src python3 -m superintendent_registry --db registry.sqlite3 \
 ```
 
 A lost lease never silently becomes `failed`. A dispatched or running task becomes `unknown`, requiring reconciliation before resume, takeover, completion, cancellation, or quarantine.
+
+## Resident loopback service
+
+Version 0.3 adds a process-resident wrapper around the same authority core. It remains deliberately local and narrow:
+
+- binds only to a numeric loopback address;
+- authenticates every `/v1/*` route with a bearer token;
+- stores only the token's SHA-256 digest in process memory;
+- acquires a kernel-released advisory lock before opening the authority database;
+- serializes all SQLite activity inside one process;
+- verifies the event chain and materialized task state at startup;
+- reconciles already-expired leases before declaring readiness;
+- expires leases on a bounded scheduler;
+- accepts connector observations as explicit IDs, locators, hashes, sizes, persistence state, and indexing state;
+- writes canonical content-addressed snapshots and an atomic `CURRENT.json` pointer;
+- recovers after `SIGKILL` by reacquiring the writer lock and reconciling abandoned leases.
+
+Run it with a token supplied outside command-line arguments:
+
+```bash
+export SUPERINTENDENT_BEARER_TOKEN='replace-with-a-secret-from-a-secret-store'
+PYTHONPATH=src python3 -m superintendent_registry.service_cli \
+  --db superintendent.sqlite3 \
+  --host 127.0.0.1 \
+  --port 8787 \
+  --snapshot-dir snapshots \
+  --source-commit "$(git rev-parse HEAD)"
+```
+
+The current implementation is not a network control plane. It has no TLS, no remote binding, no connector credentials, no scheduler that invents work, and no authority to deploy itself. External writers must honor the same lock file or remain disabled while the service owns the database.
+
+### Resident API v1
+
+Unauthenticated:
+
+- `GET /healthz`
+
+Bearer-authenticated reads:
+
+- `GET /v1/status`
+- `GET /v1/export`
+- `GET /v1/tasks/{task_id}`
+- `GET /v1/grants/{grant_id}`
+- `GET /v1/leases/{lease_id}`
+- `GET /v1/receipts/{receipt_id}`
+
+Bearer-authenticated mutations:
+
+- `POST /v1/epochs`
+- `POST /v1/capabilities`
+- `POST /v1/tasks`
+- `POST /v1/tasks/{task_id}/approve`
+- `POST /v1/tasks/{task_id}/transition`
+- `POST /v1/tasks/{task_id}/complete`
+- `POST /v1/grants`
+- `POST /v1/grants/{grant_id}/accept`
+- `POST /v1/grants/{grant_id}/start`
+- `POST /v1/leases/{lease_id}/heartbeat`
+- `POST /v1/leases/{lease_id}/revoke`
+- `POST /v1/receipts`
+- `POST /v1/artifacts`
+- `POST /v1/observations/replicas`
+- `POST /v1/observations/pointers`
+- `POST /v1/reconcile`
+- `POST /v1/scheduler/tick`
+- `POST /v1/snapshots`
