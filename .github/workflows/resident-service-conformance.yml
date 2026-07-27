@@ -1,0 +1,26 @@
+name: resident-service-conformance
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run complete registry, authority, and resident-service test suite
+        working-directory: conformance/artifact-registry
+        run: PYTHONPATH=src python3 -m unittest discover -s tests -v
+      - name: Run deterministic resident HTTP scenario
+        working-directory: conformance/artifact-registry
+        run: PYTHONPATH=src python3 tests/resident_service_scenario.py --output resident-service-evidence
+      - name: Upload resident-service evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: resident-service-evidence-${{ github.run_id }}
+          path: conformance/artifact-registry/resident-service-evidence/
+          retention-days: 7
