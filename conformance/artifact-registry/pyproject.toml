@@ -1,8 +1,9 @@
 [project]
 name = "superintendent-registry"
-version = "0.2.0"
-description = "Content-addressed registry, authority epochs, grants, leases, and reconciliation"
+version = "0.3.0"
+description = "Resident loopback service, content registry, authority epochs, grants, leases, and reconciliation"
 requires-python = ">=3.11"
 
 [project.scripts]
 superintendent-registry = "superintendent_registry.cli:main"
+superintendent-service = "superintendent_registry.service_cli:main"
