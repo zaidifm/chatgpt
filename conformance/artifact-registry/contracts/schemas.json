@@ -1,0 +1,177 @@
+{
+  "schema_version": "superintendent-contract-bundle-v1",
+  "schemas": {
+    "artifact": {
+      "$id": "https://zaidi.fm/schemas/artifact.schema.json",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": true,
+      "properties": {
+        "artifact_id": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "authority_class": {"type": "string"},
+        "created_at": {"format": "date-time", "type": "string"},
+        "logical_name": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "media_type": {"type": "string"},
+        "schema_version": {"const": "superintendent-artifact-v1"},
+        "sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"},
+        "size_bytes": {"minimum": 0, "type": "integer"},
+        "source": {"type": "object"}
+      },
+      "required": ["schema_version", "artifact_id", "logical_name", "sha256", "size_bytes", "media_type", "authority_class", "created_at", "source"],
+      "title": "Superintendent artifact",
+      "type": "object"
+    },
+    "authority-epoch": {
+      "$id": "https://zaidi.fm/schemas/authority-epoch.schema.json",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": true,
+      "properties": {
+        "epoch": {"minimum": 0, "type": "integer"},
+        "issued_at": {"format": "date-time", "type": "string"},
+        "issued_by": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "previous_epoch": {"minimum": 0, "type": "integer"},
+        "reason": {"type": "string"},
+        "schema_version": {"const": "superintendent-authority-epoch-v1"}
+      },
+      "required": ["schema_version", "epoch", "issued_at", "issued_by"],
+      "title": "Authority epoch",
+      "type": "object"
+    },
+    "capability-declaration": {
+      "$id": "https://zaidi.fm/schemas/capability-declaration.schema.json",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": true,
+      "properties": {
+        "capability_id": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "declared_at": {"format": "date-time", "type": "string"},
+        "executor": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "health": {"type": "object"},
+        "limits": {"type": "object"},
+        "operations": {"items": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"}, "type": "array"},
+        "schema_version": {"const": "superintendent-capability-declaration-v1"}
+      },
+      "required": ["schema_version", "capability_id", "executor", "operations", "declared_at"],
+      "title": "Capability declaration",
+      "type": "object"
+    },
+    "continuation-capsule": {
+      "$id": "https://zaidi.fm/schemas/continuation-capsule.schema.json",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": true,
+      "properties": {
+        "authority_cutoff": {"type": "object"},
+        "capsule_id": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "created_at": {"format": "date-time", "type": "string"},
+        "current_state": {"type": "object"},
+        "evidence": {"type": "array"},
+        "next_actions": {"type": "array"},
+        "project": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "schema_version": {"const": "superintendent-continuation-capsule-v1"}
+      },
+      "required": ["schema_version", "capsule_id", "project", "created_at", "authority_cutoff", "current_state", "next_actions"],
+      "title": "Continuation capsule",
+      "type": "object"
+    },
+    "execution-receipt": {
+      "$id": "https://zaidi.fm/schemas/execution-receipt.schema.json",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": true,
+      "properties": {
+        "authority_epoch": {"minimum": 0, "type": "integer"},
+        "created_at": {"format": "date-time", "type": "string"},
+        "evidence": {"type": "array"},
+        "executor": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "idempotency_key": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "output_artifact_id": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "output_sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"},
+        "receipt_id": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "schema_version": {"const": "superintendent-execution-receipt-v1"},
+        "source_commit": {"type": ["string", "null"]},
+        "state": {"type": "string"},
+        "task_id": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"}
+      },
+      "required": ["schema_version", "receipt_id", "task_id", "idempotency_key", "authority_epoch", "executor", "state", "created_at"],
+      "title": "Execution receipt",
+      "type": "object"
+    },
+    "reconciliation-result": {
+      "$id": "https://zaidi.fm/schemas/reconciliation-result.schema.json",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": true,
+      "properties": {
+        "accepted_artifact_id": {"type": ["string", "null"]},
+        "actions": {"items": {"type": "object"}, "type": "array"},
+        "decision": {"enum": ["accepted", "accepted_pending_index", "pointer_update_required", "repair_required", "quarantined", "missing_authority"], "type": "string"},
+        "evidence": {"type": "object"},
+        "logical_name": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "observed_at": {"format": "date-time", "type": "string"},
+        "reconciliation_id": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "schema_version": {"const": "superintendent-reconciliation-result-v1"},
+        "states": {"items": {"type": "string"}, "type": "array", "uniqueItems": true}
+      },
+      "required": ["schema_version", "reconciliation_id", "logical_name", "decision", "states", "observed_at", "evidence", "actions"],
+      "title": "Reconciliation result",
+      "type": "object"
+    },
+    "task": {
+      "$id": "https://zaidi.fm/schemas/task.schema.json",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": true,
+      "properties": {
+        "authority_epoch": {"minimum": 0, "type": "integer"},
+        "capability": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "expected_sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"},
+        "idempotency_key": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "input": {},
+        "operation": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "schema_version": {"const": "superintendent-task-v1"},
+        "task_id": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"}
+      },
+      "required": ["schema_version", "task_id", "idempotency_key", "authority_epoch", "capability", "operation", "input"],
+      "title": "Superintendent task",
+      "type": "object"
+    },
+    "terminal-receipt": {
+      "$id": "https://zaidi.fm/schemas/terminal-receipt.schema.json",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": true,
+      "properties": {
+        "authority_epoch": {"minimum": 0, "type": "integer"},
+        "created_at": {"format": "date-time", "type": "string"},
+        "evidence": {"type": "array"},
+        "executor": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "idempotency_key": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "output_artifact_id": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "output_sha256": {"pattern": "^[0-9a-f]{64}$", "type": "string"},
+        "receipt_id": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "schema_version": {"const": "superintendent-terminal-receipt-v1"},
+        "source_commit": {"type": ["string", "null"]},
+        "state": {"type": "string"},
+        "task_id": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"}
+      },
+      "required": ["schema_version", "receipt_id", "task_id", "idempotency_key", "authority_epoch", "executor", "state", "created_at"],
+      "title": "Terminal receipt",
+      "type": "object"
+    },
+    "work-grant": {
+      "$id": "https://zaidi.fm/schemas/work-grant.schema.json",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": true,
+      "properties": {
+        "authority_epoch": {"minimum": 0, "type": "integer"},
+        "executor": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "expires_at": {"format": "date-time", "type": "string"},
+        "forbidden_actions": {"items": {"type": "string"}, "type": "array"},
+        "grant_id": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "idempotency_key": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "issued_at": {"format": "date-time", "type": "string"},
+        "lease_id": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"},
+        "permitted_actions": {"items": {"type": "string"}, "type": "array"},
+        "schema_version": {"const": "superintendent-work-grant-v1"},
+        "task_id": {"pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$", "type": "string"}
+      },
+      "required": ["schema_version", "grant_id", "task_id", "authority_epoch", "executor", "issued_at", "expires_at", "permitted_actions", "forbidden_actions"],
+      "title": "Superintendent work grant",
+      "type": "object"
+    }
+  }
+}
