@@ -37,16 +37,23 @@ CREATE TABLE IF NOT EXISTS contract_records (
 
 CREATE TABLE IF NOT EXISTS artifacts (
     artifact_id TEXT PRIMARY KEY,
-    logical_name TEXT NOT NULL,
     sha256 TEXT NOT NULL UNIQUE,
     size_bytes INTEGER NOT NULL CHECK(size_bytes >= 0),
     media_type TEXT NOT NULL,
     authority_class TEXT NOT NULL,
     source_json TEXT NOT NULL,
-    created_at TEXT NOT NULL,
-    active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0, 1))
+    created_at TEXT NOT NULL
 );
-CREATE INDEX IF NOT EXISTS artifacts_logical_name_idx ON artifacts(logical_name, active);
+
+CREATE TABLE IF NOT EXISTS artifact_names (
+    name_id TEXT PRIMARY KEY,
+    logical_name TEXT NOT NULL,
+    artifact_id TEXT NOT NULL REFERENCES artifacts(artifact_id),
+    named_at TEXT NOT NULL,
+    active INTEGER NOT NULL DEFAULT 1 CHECK(active IN (0, 1)),
+    UNIQUE(logical_name, artifact_id)
+);
+CREATE INDEX IF NOT EXISTS artifact_names_lookup_idx ON artifact_names(logical_name, active);
 
 CREATE TABLE IF NOT EXISTS replicas (
     replica_id TEXT PRIMARY KEY,
