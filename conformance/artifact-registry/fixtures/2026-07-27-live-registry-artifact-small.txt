@@ -1,0 +1,7 @@
+Superintendent live Git-Library reconciliation fixture v1
+probe_token=SUPERINTENDENT-LIVE-REGISTRY-SMALL-2026-07-27-6E9B42
+authority=git-and-registry
+library_role=durable-replica
+payload=This public synthetic artifact exists to prove content-addressed identity across Git, Library, and disposable container materialization.
+constraint=No credentials, personal data, private project evidence, or hidden account state are present.
+reconciliation_expectation=verified:git,verified:library

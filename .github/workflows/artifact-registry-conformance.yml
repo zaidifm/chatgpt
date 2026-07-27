@@ -1,0 +1,26 @@
+name: artifact-registry-conformance
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run registry unit tests
+        working-directory: conformance/artifact-registry
+        run: PYTHONPATH=src python3 -m unittest discover -s tests -p 'test_registry.py' -v
+      - name: Run deterministic cross-node scenario
+        working-directory: conformance/artifact-registry
+        run: PYTHONPATH=src python3 tests/deterministic_scenario.py --output artifact-registry-evidence
+      - name: Upload deterministic evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-registry-evidence-${{ github.run_id }}
+          path: conformance/artifact-registry/artifact-registry-evidence/
+          retention-days: 7
