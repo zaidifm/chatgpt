@@ -79,12 +79,21 @@ class Registry:
         with transaction(self.connection):
             self.connection.execute(
                 """
-                INSERT INTO artifacts(artifact_id, logical_name, sha256, size_bytes, media_type, authority_class, source_json, created_at, active)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(artifact_id) DO UPDATE SET logical_name=excluded.logical_name, media_type=excluded.media_type,
-                    authority_class=excluded.authority_class, source_json=excluded.source_json, active=excluded.active
+                INSERT INTO artifacts(artifact_id, sha256, size_bytes, media_type, authority_class, source_json, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(artifact_id) DO UPDATE SET media_type=excluded.media_type,
+                    authority_class=excluded.authority_class, source_json=excluded.source_json
                 """,
-                (artifact_id, logical_name, digest, len(data), media_type, authority_class, canonical_json_bytes(source).decode("utf-8"), created_at, 1 if active else 0),
+                (artifact_id, digest, len(data), media_type, authority_class, canonical_json_bytes(source).decode("utf-8"), created_at),
+            )
+            name_id = content_id("artifact-name", {"logical_name": logical_name, "artifact_id": artifact_id})
+            self.connection.execute(
+                """
+                INSERT INTO artifact_names(name_id, logical_name, artifact_id, named_at, active)
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(logical_name, artifact_id) DO UPDATE SET active=excluded.active
+                """,
+                (name_id, logical_name, artifact_id, created_at, 1 if active else 0),
             )
             self._event(occurred_at=created_at, event_type="artifact_registered", subject_type="artifact", subject_id=artifact_id, payload=payload)
         return payload
@@ -96,8 +105,8 @@ class Registry:
 
     def set_artifact_active(self, artifact_id: str, active: bool, observed_at: str) -> None:
         with transaction(self.connection):
-            cursor = self.connection.execute("UPDATE artifacts SET active=? WHERE artifact_id=?", (1 if active else 0, artifact_id))
-            if cursor.rowcount != 1:
+            cursor = self.connection.execute("UPDATE artifact_names SET active=? WHERE artifact_id=?", (1 if active else 0, artifact_id))
+            if cursor.rowcount < 1:
                 raise RegistryError(f"artifact_not_found:{artifact_id}")
             self._event(occurred_at=observed_at, event_type="artifact_activation_changed", subject_type="artifact", subject_id=artifact_id, payload={"active": active})
 
@@ -159,7 +168,16 @@ class Registry:
         return receipt_id
 
     def _active_artifacts(self, logical_name: str) -> list[sqlite3.Row]:
-        return list(self.connection.execute("SELECT * FROM artifacts WHERE logical_name=? AND active=1 ORDER BY created_at, artifact_id", (logical_name,)))
+        return list(self.connection.execute(
+            """
+            SELECT a.*, n.logical_name, n.active, n.named_at, n.name_id
+            FROM artifacts a
+            JOIN artifact_names n ON n.artifact_id=a.artifact_id
+            WHERE n.logical_name=? AND n.active=1
+            ORDER BY n.named_at, a.artifact_id
+            """,
+            (logical_name,),
+        ))
 
     def reconcile(self, *, logical_name: str, required_planes: Iterable[str], observed_at: str) -> dict[str, Any]:
         required = sorted(set(required_planes))
@@ -212,8 +230,8 @@ class Registry:
             receipt_rows = list(self.connection.execute(
                 """
                 SELECT * FROM receipts
-                WHERE output_artifact_id IN (SELECT artifact_id FROM artifacts WHERE logical_name=? )
-                   OR output_sha256 IN (SELECT sha256 FROM artifacts WHERE logical_name=? )
+                WHERE output_artifact_id IN (SELECT artifact_id FROM artifact_names WHERE logical_name=? )
+                   OR output_sha256 IN (SELECT a.sha256 FROM artifacts a JOIN artifact_names n ON n.artifact_id=a.artifact_id WHERE n.logical_name=? )
                 ORDER BY task_id, idempotency_key, receipt_id
                 """, (logical_name, logical_name)))
             groups: dict[tuple[str, str], list[sqlite3.Row]] = {}
@@ -261,6 +279,6 @@ class Registry:
     def export_state(self) -> dict[str, Any]:
         def rows(table: str) -> list[dict[str, Any]]:
             return [dict(row) for row in self.connection.execute(f"SELECT * FROM {table}")]
-        return {"schema_version": "superintendent-registry-export-v1", "artifacts": rows("artifacts"), "replicas": rows("replicas"),
-                "pointers": rows("pointers"), "receipts": rows("receipts"), "reconciliations": rows("reconciliations"),
-                "events": rows("events"), "contract_records": rows("contract_records")}
+        return {"schema_version": "superintendent-registry-export-v1", "artifacts": rows("artifacts"), "artifact_names": rows("artifact_names"),
+                "replicas": rows("replicas"), "pointers": rows("pointers"), "receipts": rows("receipts"),
+                "reconciliations": rows("reconciliations"), "events": rows("events"), "contract_records": rows("contract_records")}
