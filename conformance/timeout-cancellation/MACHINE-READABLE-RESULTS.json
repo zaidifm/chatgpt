@@ -1,0 +1,84 @@
+{
+  "observations": {
+    "checkpoint_resume": {
+      "baseline_sha256": "8fe0475a653b277b73db10b981f8e4c69b67f904294cde89f9141492f56cf289",
+      "byte_identical": true,
+      "chunks_recovered_before_resume": 6,
+      "receipt": {
+        "bytes": 1310720,
+        "chunks": 20,
+        "sha256": "8fe0475a653b277b73db10b981f8e4c69b67f904294cde89f9141492f56cf289",
+        "status": "completed",
+        "task_key": "CHECKPOINT-001"
+      },
+      "resumed_sha256": "8fe0475a653b277b73db10b981f8e4c69b67f904294cde89f9141492f56cf289"
+    },
+    "container_exec_timeout_parameter": {
+      "interpretation": "The exposed timeout parameter did not provide a usable cancellation boundary in these calls; units/clamping/implementation remain undocumented.",
+      "result": "not_enforced_in_tested_calls",
+      "tests": [
+        {"command_seconds": 3, "completed": true, "parameter": 1},
+        {"command_seconds": 8.568839073181152, "completed": true, "parameter": 2000}
+      ]
+    },
+    "detached_child": {
+      "completed": true,
+      "output_sha256": "476e56141c6ddc8d34745c528ecb12a801bf5f16b68fa74b6f39b88e34060e4d",
+      "parent_exit_code": 124,
+      "reparented_to_pid_1": true
+    },
+    "explicit_foreground_cancellation": {
+      "exit_code": 124,
+      "final_output_present": false,
+      "signal_event": {"event": "signal", "signal": 15, "signal_name": "SIGTERM"}
+    },
+    "idempotent_retry": {
+      "business_counter": 1,
+      "receipt": {"status": "completed", "task_key": "TASK-001", "value": 1},
+      "task": {"attempts": 2, "state": "completed", "task_key": "TASK-001", "value": 1}
+    },
+    "naive_retry": {
+      "business_counter": 2,
+      "duplicate_side_effect": true,
+      "expected_once": 1,
+      "receipts": 1
+    },
+    "same_process_group_child": {
+      "exit_code": 124,
+      "final_output_present": false,
+      "signal_event": {"event": "signal", "signal": 15, "signal_name": "SIGTERM"}
+    }
+  },
+  "rubric": {
+    "authority": 2,
+    "contract": 2,
+    "correctness": 2,
+    "failure_containment": 2,
+    "idempotency": 2,
+    "maximum": 16,
+    "portability": 1,
+    "provenance": 2,
+    "recovery": 2,
+    "status": "pass_same_node_cross_node_pending",
+    "total": 15
+  },
+  "schema_version": "superintendent-timeout-cancellation-conformance-v1",
+  "scope": "ChatGPT disposable Linux VM and container.exec wrapper",
+  "snapshot": "2026-07-26",
+  "state_machine": {
+    "automatic_retry_allowed_only_if": [
+      "idempotency key is durable",
+      "side effect is transactionally recorded or operation is pure",
+      "no active valid lease",
+      "retry resumes or finalizes rather than repeats"
+    ],
+    "lost_caller_without_terminal_receipt": "unknown",
+    "reconciliation_order": [
+      "terminal receipt",
+      "task journal/checkpoint",
+      "live process identity and lease",
+      "committed side-effect record",
+      "safe retry decision"
+    ]
+  }
+}
