@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse, json, os, urllib.request
+
+import argparse
+import json
+import os
+import urllib.request
 from pathlib import Path
 
-def api(url: str, method="GET", data=None):
-    token = os.environ["GITHUB_TOKEN"]
-    body = None if data is None else json.dumps(data).encode()
+from receipt_utils import find_valid_receipt, get_paginated_comments
+
+
+def post_json(url: str, token: str, data: dict) -> dict:
     request = urllib.request.Request(
         url,
-        data=body,
-        method=method,
+        data=json.dumps(data).encode(),
+        method="POST",
         headers={
             "Authorization": f"Bearer {token}",
             "Accept": "application/vnd.github+json",
@@ -18,7 +23,8 @@ def api(url: str, method="GET", data=None):
         },
     )
     with urllib.request.urlopen(request, timeout=20) as response:
-        return json.load(response) if response.length != 0 else None
+        return json.load(response)
+
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -32,22 +38,24 @@ def main() -> int:
     outcome = json.loads(Path(args.outcome).read_text())
     decision = outcome["decision"]
     if decision == "duplicate":
-        print("duplicate receipt already present; no comment posted")
+        print("authenticated receipt already present; no comment posted")
         return 0
 
+    token = os.environ["GITHUB_TOKEN"]
     issue = event["issue"]
-    comments = api(issue["comments_url"] + "?per_page=100")
-    if any(outcome["marker"] in (comment.get("body") or "") for comment in comments):
-        print("receipt appeared during run; no duplicate posted")
+    task = outcome.get("task") or {}
+    idempotency_key = str(outcome["idempotency_key"])
+    comments = get_paginated_comments(issue["comments_url"], token)
+    if find_valid_receipt(comments, marker=outcome["marker"], task=task) is not None:
+        print("authenticated receipt appeared during run; no duplicate posted")
         return 0
 
-    task = outcome.get("task") or {}
     state = "completed" if decision == "execute" else "rejected"
     receipt = {
         "schema_version": "superintendent-terminal-receipt-v1",
         "state": state,
         "task_id": task.get("task_id"),
-        "idempotency_key": task.get("idempotency_key"),
+        "idempotency_key": idempotency_key,
         "authority_epoch": task.get("authority_epoch"),
         "capability": task.get("capability"),
         "source_sha": outcome.get("source_sha"),
@@ -64,9 +72,10 @@ def main() -> int:
         + json.dumps(receipt, indent=2, sort_keys=True)
         + "\n```"
     )
-    posted = api(issue["comments_url"], method="POST", data={"body": body})
+    posted = post_json(issue["comments_url"], token, {"body": body})
     print(json.dumps({"comment_id": posted.get("id"), "state": state}, sort_keys=True))
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())
