@@ -1,0 +1,18 @@
+name: superintendent-conformance-ci
+
+on:
+  pull_request:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run executor gate self-tests
+        run: python3 conformance/executor-gate/selftest.py
+      - name: Validate machine-readable timeout baseline
+        run: python3 -m json.tool conformance/timeout-cancellation/MACHINE-READABLE-RESULTS.json >/dev/null
